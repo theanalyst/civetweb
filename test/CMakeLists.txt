@@ -127,6 +127,8 @@ macro(civetweb_add_test suite test_case)
     set_tests_properties(${test} PROPERTIES
       ENVIRONMENT "PATH=${test_path}\\;$<TARGET_FILE_DIR:c-library>")
   endif()
+  set_tests_properties(${test} PROPERTIES
+    ENVIRONMENT "TEST_CERT_DIR=${CMAKE_SOURCE_DIR}/resources/")
 endmacro(civetweb_add_test)
 
 
