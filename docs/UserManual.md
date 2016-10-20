@@ -140,7 +140,7 @@ Comma separated list of URI=PATH pairs, specifying that given
 URIs must be protected with password files specified by PATH.
 All Paths must be full file paths.
 
-### authentication_domain `mydomain.com`
+### authentication\_domain `mydomain.com`
 Authorization realm used for HTTP digest authentication. This domain is
 used in the encoding of the `.htpasswd` authorization files as well.
 Changing the domain retroactively will render the existing passwords useless.
@@ -278,15 +278,36 @@ an IP address and a colon must be pre-pended to the port number.
 For example, to bind to a loopback interface on port 80 and to
 all interfaces on HTTPS port 443, use `127.0.0.1:80,443s`.
 
+If the server is built with IPv6 support, `[::]:8080` can be used to
+listen to IPv6 connections to port 8080. IPv6 addresses of network
+interfaces can be specified as well,
+e.g. `[::1]:8080` for the IPv6 loopback interface.
+
+[::]:80 will bind to port 80 IPv6 only. In order to use port 80 for
+all interfaces, both IPv4 and IPv6, use either the configuration
+`80,[::]:80` (create one socket for IPv4 and one for IPv6 only),
+or `+80` (create one socket for both, IPv4 and IPv6). 
+The `+`-notation to use IPv4 and IPv6 will only work in no network
+interface is specified. Depending on your IPv6 network environment,
+some configurations might not work (properly), so you have to test
+to find the configuration most suitable for your needs.
+
+It is possible to use network interface addresses (e.g., `192.0.2.3:80`,
+`[2001:0db8::1234]:80`). To get a list of available network interface
+addresses, use `ipconfig` (in a `cmd` window in Windows) or `ifconfig` 
+(in a Linux shell).
+
 ### document\_root `.`
-A directory to serve. By default, the current workubg directory is served.
+A directory to serve. By default, the current working directory is served.
 The current directory is commonly referenced as dot (`.`).
+It is recommended to use an absolute path for document\_root, in order to 
+avoid accidentally serving the wrong directory.
 
 ### ssl\_certificate
 Path to the SSL certificate file. This option is only required when at least
 one of the `listening\_ports` is SSL. The file must be in PEM format,
 and it must have both, private key and certificate, see for example
-[ssl_cert.pem](https://github.com/bel2125/civetweb/blob/master/resources/ssl_cert.pem)
+[ssl_cert.pem](https://github.com/civetweb/civetweb/blob/master/resources/ssl_cert.pem)
 A description how to create a certificate can be found in doc/OpenSSL.md
 
 ### num\_threads `50`
@@ -377,9 +398,93 @@ must be called error404.ext, error4xx.ext or error.ext, whereas the file
 extention may be one of the extentions specified for the index_files option.
 See the [Wikipedia page on HTTP status codes](http://en.wikipedia.org/wiki/HTTP_status_code).
 
+### tcp\_nodelay `0`
+Enable TCP_NODELAY socket option on client connections.
+
+If set the socket option will disable Nagle's algorithm on the connection
+which means that packets will be sent as soon as possible instead of waiting
+for a full buffer or timeout to occur.
+
+    0    Keep the default: Nagel's algorithm enabled
+    1    Disable Nagel's algorithm for all sockets
+
+### static\_file\_max\_age `3600`
+Set the maximum time (in seconds) a cache may store a static files.
+
+This option will set the `Cache-Control: max-age` value for static files.
+Dynamically generated content, i.e., content created by a script or callback,
+must send cache control headers by themselfes.
+
+A value >0 corresponds to a maximum allowed caching time in seconds.
+This value should not exceed one year (RFC 2616, Section 14.21).
+A value of 0 will send "do not cache" headers for all static files.
+For values <0 and values >31622400, the behavior is undefined.
+
 ### decode\_url `yes`
 URL encoded request strings are decoded in the server, unless it is disabled
 by setting this option to `no`.
+
+### ssl\_verify\_peer `no`
+Enable client's certificate verification by the server.
+
+### ssl\_ca\_path
+Name of a directory containing trusted CA certificates. Each file in the
+directory must contain only a single CA certificate. The files must be named
+by the subject name’s hash and an extension of “.0”. If there is more than one
+certificate with the same subject name they should have extensions ".0", ".1",
+".2" and so on respectively.
+
+### ssl\_ca\_file
+Path to a .pem file containing trusted certificates. The file may contain
+more than one certificate.
+
+### ssl\_verify\_depth `9`
+Sets maximum depth of certificate chain. If client's certificate chain is longer
+than the depth set here connection is refused.
+
+### ssl\_default\_verify\_paths `yes`
+Loads default trusted certificates locations set at openssl compile time.
+
+### ssl\_cipher\_list
+List of ciphers to present to the client. Entries should be separated by
+colons, commas or spaces.
+
+    ALL           All available ciphers
+    ALL:!eNULL    All ciphers excluding NULL ciphers
+    AES128:!MD5   AES 128 with digests other than MD5
+
+See [this entry](https://www.openssl.org/docs/manmaster/apps/ciphers.html) in
+OpenSSL documentation for full list of options and additional examples.
+
+### ssl\_protocol\_version `0`
+Sets the minimal accepted version of SSL/TLS protocol according to the table:
+
+Protocols | Value
+------------ | -------------
+SSL2+SSL3+TLS1.0+TLS1.1+TLS1.2  | 0
+SSL3+TLS1.0+TLS1.1+TLS1.2  | 1
+TLS1.0+TLS1.1+TLS1.2 | 2
+TLS1.1+TLS1.2 | 3
+TLS1.2 | 4
+
+### ssl\_short\_trust `no`
+Enables the use of short lived certificates. This will allow for the certificates
+and keys specified in `ssl_certificate`, `ssl_ca_file` and `ssl_ca_path` to be
+exchanged and reloaded while the server is running.
+
+In an automated environment it is advised to first write the new pem file to
+a different filename and then to rename it to the configured pem file name to
+increase performance while swapping the certificate.
+
+Disk IO performance can be improved when keeping the certificates and keys stored
+on a tmpfs (linux) on a system with very high throughput.
+
+### allow\_sendfile\_call `yes`
+This option can be used to enable or disable the use of the Linux `sendfile` system call. It is only available for Linux systems and only affecting HTTP (not HTTPS) connections if `throttle` is not enabled. While using the `sendfile` call will lead to a performance boost for HTTP connections, this call may be broken for some file systems and some operating system versions.
+
+### case\_sensitive `no`
+This option can be uset to enable case URLs for Windows servers. It is only available for Windows systems. Windows file systems are not case sensitive, but they still store the file name including case. If this option is set to `yes`, the comparison for URIs and Windows file names will be case sensitive.
+
 
 # Lua Scripts and Lua Server Pages
 Pre-built Windows and Mac civetweb binaries have built-in Lua scripting
@@ -408,7 +513,7 @@ page, one can write:
     </p>
 
 Lua is known for it's speed and small size. Civetweb currently uses Lua
-version 5.2.3. The documentation for it can be found in the
+version 5.2.4. The documentation for it can be found in the
 [Lua 5.2 reference manual](http://www.lua.org/manual/5.2/).
 
 
@@ -416,25 +521,28 @@ Note that this example uses function `mg.write()`, which sends data to the
 web client. Using `mg.write()` is the way to generate web content from inside
 Lua code. In addition to `mg.write()`, all standard Lua library functions
 are accessible from the Lua code (please check the reference manual for
-details). Information on the request is available in the `mg.request_info`
+details). Lua functions working on files (e.g., `io.open`) use a path
+relative to the working path of the civetweb process. The web server content
+is located in the path `mg.document_root`.
+Information on the request is available in the `mg.request_info`
 object, like the request method, all HTTP headers, etcetera.
 
-[page2.lua](https://github.com/bel2125/civetweb/blob/master/test/page2.lua)
+[page2.lua](https://github.com/civetweb/civetweb/blob/master/test/page2.lua)
 is an example for a plain Lua script.
 
-[page2.lp](https://github.com/bel2125/civetweb/blob/master/test/page2.lp)
+[page2.lp](https://github.com/civetweb/civetweb/blob/master/test/page2.lp)
 is an example for a Lua Server Page.
 
 Both examples show the content of the `mg.request_info` object as the page
 content. Please refer to `struct mg_request_info` definition in
-[civetweb.h](https://github.com/bel2125/civetweb/blob/master/include/civetweb.h)
+[civetweb.h](https://github.com/civetweb/civetweb/blob/master/include/civetweb.h)
 to see additional information on the elements of the `mg.request_info` object.
 
 Civetweb also provides access to the [SQlite3 database](http://www.sqlite.org/)
 through the [LuaSQLite3 interface](http://lua.sqlite.org/index.cgi/doc/tip/doc/lsqlite3.wiki)
 in Lua. Examples are given in
-[page.lua](https://github.com/bel2125/civetweb/blob/master/test/page.lua) and
-[page.lp](https://github.com/bel2125/civetweb/blob/master/test/page.lp).
+[page.lua](https://github.com/civetweb/civetweb/blob/master/test/page.lua) and
+[page.lp](https://github.com/civetweb/civetweb/blob/master/test/page.lp).
 
 
 Civetweb exports the following functions to Lua:
@@ -454,7 +562,7 @@ mg (table):
     mg.get_mime_type(filename) -- get MIME type of a file
     mg.send_file(filename)     -- send a file, including MIME type
     mg.url_encode(str)         -- URL encode a string
-    mg.url_decode(str)         -- URL decode a string
+    mg.url_decode(str, [form]) -- URL decode a string. If form=true, replace + by space.
     mg.base64_encode(str)      -- BASE64 encode a string
     mg.base64_decode(str)      -- BASE64 decode a string
     mg.md5(str)                -- return the MD5 hash of a string
@@ -521,7 +629,7 @@ must return true in order to keep the connetion open.
 Lua websocket pages do support single shot (timeout) and interval timers.
 
 An example is shown in
-[websocket.lua](https://github.com/bel2125/civetweb/blob/master/test/websocket.lua).
+[websocket.lua](https://github.com/civetweb/civetweb/blob/master/test/websocket.lua).
 
 
 # Common Problems
@@ -530,6 +638,14 @@ An example is shown in
   the correct interpreter is `php-cgi.exe` (`php-cgi` on UNIX).
   Solution: specify the full path to the PHP interpreter, e.g.:
     `civetweb -cgi_interpreter /full/path/to/php-cgi`
+
+- `php-cgi` is unavailable, for example on Mac OS X. As long as the `php` binary is installed, you can run CGI programs in command line mode (see the example below). Note that in this mode, `$_GET` and friends will be unavailable, and you'll have to parse the query string manually using [parse_str](http://php.net/manual/en/function.parse-str.php) and the `QUERY_STRING` environmental variable.
+
+        #!/usr/bin/php
+        <?php
+        echo "Content-Type: text/html\r\n\r\n";
+        echo "Hello World!\n";
+        ?>
 
 - Civetweb fails to start. If Civetweb exits immediately when started, this
   usually indicates a syntax error in the configuration file
@@ -541,4 +657,3 @@ An example is shown in
 - Embedding with OpenSSL on Windows might fail because of calling convention.
   To force Civetweb to use `__stdcall` convention, add `/Gz` compilation
   flag in Visual Studio compiler.
-

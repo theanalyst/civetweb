@@ -2,22 +2,93 @@
 
 * Alex Kozlov
 * bel2125
-* celeron55
-* Daniel Oaks
-* Danny Al-Gaaf
-* F-Secure Corporation
+* Ben M. Ward
+* brett
+* Bjoern Petri
+* Brian Lambert
 * Brian Spratke
+* cdbishop
+* celeron55
+* Charles Olivi
+* Christian Mauderer
+* Christopher Galas
+* cjh
+* Daniel Oaks
+* Daniel Rempel
+* Danny Al-Gaaf
+* Dave Brower
+* David Arnold
+* David Loffredo
+* Dialga
+* ehlertjd
+* Eric Tsau
+* Erik Beran
+* F-Secure Corporation
+* Fernando G. Aranda
+* Grahack
+* grenclave
+* hansipie
 * HariKamath Kamath
+* Jack
+* Jacob Skillin
+* Jan Willem Janssen
+* Jeremy Lin
+* Jim Evans
+* jmc-
+* Jochen Scheib
+* Joe Mucchiello
+* Joel Gallant
+* Johan De Taeye
+* Jordan
+* Jordan Shelley
+* Joshua Boyd
+* Joshua D. Boyd
+* kalphamon
+* Keith Kyzivat
+* Kevin Wojniak
 * Kimmo Mustonen
+* Lawrence
+* Li Peng
+* Lianghui
+* Maarten Fremouw
+* makrsmark
+* Mark Lakata
+* Martin Gaida
+* Mateusz Gralka
+* Matt Clarkson
+* mingodad
 * Morgan McGuire
+* Neil Jensen
+* Nick Hildebrant
+* Nigel Stewart
+* nihildeb
 * No Face Press
 * Paul Sokolovsky
+* Perttu Ahola
+* Peter Foerster
+* Philipp Friedenberger
+* Philipp Hasper
+* Red54
+* Richard Screene
+* Sage Weil
+* Sangwhan Moon
+* Saumitra Vikram
+* Scott Nations
+* shantanugadgil
+* SpaceLord
+* sunfch
+* thewaterymoon
 * Thomas Davis
+* tnoho
 * Toni Wilk
+* Ulrich Hertlein
+* Walt Steverson
 * William Greathouse
+* xtne6f
+* Yehuda Sadeh
 
 # Mongoose Contributors
-Civetweb is based on the Mongoose code.  The following users contributed to the original Mongoose release between 2010 and 2013.  This list was generated from the Mongoose GIT logs.  There is no record for contributors prior to 2010.
+Civetweb is based on the Mongoose code.  The following users contributed to the original Mongoose release between 2010 and 2013.  This list was generated from the Mongoose GIT logs.  It does not contain contributions from the Mongoose mailing list.  There is no record for contributors prior to 2010.
 
 * Sergey Lyubka
 * Arnout Vandecappelle (Essensium/Mind)

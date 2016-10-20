@@ -4,7 +4,7 @@ mg.write("\r\n")
 mg.write([[<html><body>
 
 <p>This is another example of a Lua server page, served by
-<a href="http://code.google.com/p/civetweb">Civetweb web server</a>.
+<a href="https://github.com/civetweb/civetweb">CivetWeb web server</a>.
 </p><p>
 The following features are available:
 <ul>
@@ -39,7 +39,7 @@ end
 -- Print Lua version and available libraries
 mg.write("<li>" .. _VERSION .. " with the following standard libraries</li>\n")
 mg.write("<ul>\n")
-libs = {"string", "math", "table", "io", "os", "bit32", "package", "coroutine", "debug"};
+libs = {"string", "math", "table", "io", "os", "bit32", "utf8", "package", "coroutine", "debug"};
 for _,n in ipairs(libs) do
   print_if_available(_G[n], n);
 end
@@ -60,7 +60,7 @@ print_if_available(connect, "connect function")
 mg.write("</ul></p>\n");
 mg.write("<p> Today is " .. os.date("%A") .. "</p>\n");
 
-l = mg.request_info.http_headers["Content-Length"]
+l = mg.request_info.content_length
 if l then
   mg.write("<p>Content-Length = "..l..":<br>\n<pre>\n")
   mg.write(mg.read())
