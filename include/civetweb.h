@@ -1188,6 +1188,8 @@ CIVETWEB_API void mg_cry(const struct mg_connection *conn,
 CIVETWEB_API int mg_strcasecmp(const char *s1, const char *s2);
 CIVETWEB_API int mg_strncasecmp(const char *s1, const char *s2, size_t len);
 
+ /* set connection's http status */
+CIVETWEB_API void mg_set_http_status(struct mg_connection *conn, int status);
 
 /* Connect to a websocket as a client
    Parameters:
