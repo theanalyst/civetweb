@@ -11889,7 +11889,7 @@ getreq(struct mg_connection *conn, char *ebuf, size_t ebuf_len, int *err)
 				            ebuf_len,
 				            "%s",
 				            "Bad Request");
-				*err = 400;
+				*err = 411;
 				return 0;
 			}
 			/* Publish the content length back to the request info. */
