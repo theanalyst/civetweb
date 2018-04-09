@@ -2128,6 +2128,7 @@ enum {
 
   VALIDATE_HTTP_METHOD,
   CANONICALIZE_URL_PATH,
+  ALLOW_UNICODE_IN_URLS,
 	NUM_OPTIONS
 };
 
@@ -2229,7 +2230,7 @@ static struct mg_option config_options[] = {
     {"allow_index_script_resource", CONFIG_TYPE_BOOLEAN, "no"},
     {"validate_http_method", CONFIG_TYPE_BOOLEAN, "yes"},
     {"canonicalize_url_path", CONFIG_TYPE_BOOLEAN, "yes"},
-
+    {"allow_unicode_in_urls", CONFIG_TYPE_BOOLEAN, "no"},
     {NULL, CONFIG_TYPE_UNKNOWN, NULL}};
 
 
@@ -9455,11 +9456,7 @@ parse_http_request(int check_method, char *buf, int len, struct mg_request_info 
 	}
 
 	/* The second word is the URI */
-	ri->request_uri = buf;
-
-	if (skip_to_end_of_word_and_terminate(&buf, 0) <= 0) {
-		return -1;
-	}
+	ri->request_uri = skip_quoted(&buf, " ", " ", 0);
 
 	/* Next would be the HTTP version */
 	ri->http_version = buf;
@@ -15089,7 +15086,7 @@ static const struct {
  * return 3 for absolute uri without port,
  * return 4 for absolute uri with port */
 static int
-get_uri_type(const char *uri)
+get_uri_type(const char *uri, int allow_unicode)
 {
 	int i;
 	const char *hostend, *portbegin;
@@ -15112,11 +15109,11 @@ get_uri_type(const char *uri)
 	 * and % encoded symbols.
 	 */
 	for (i = 0; uri[i] != 0; i++) {
-		if (uri[i] < 33) {
+		if (!allow_unicode && uri[i] < 33) {
 			/* control characters and spaces are invalid */
 			return 0;
 		}
-		if (uri[i] > 126) {
+		if (!allow_unicode && uri[i] > 126) {
 			/* non-ascii characters must be % encoded */
 			return 0;
 		} else {
@@ -15893,7 +15890,8 @@ process_new_connection(struct mg_connection *conn)
 		}
 
 		if (ebuf[0] == '\0') {
-			uri_type = get_uri_type(conn->request_info.request_uri);
+			uri_type = get_uri_type(conn->request_info.request_uri,
+                              !mg_strcasecmp(conn->ctx->config[ALLOW_UNICODE_IN_URLS],"yes"));
 			switch (uri_type) {
 			case 1:
 				/* Asterisk */
