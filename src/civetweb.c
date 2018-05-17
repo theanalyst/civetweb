@@ -15108,32 +15108,37 @@ get_uri_type(const char *uri, int allow_unicode)
 	 * and unreserved characters A-Z a-z 0-9 and -._~
 	 * and % encoded symbols.
 	 */
-	for (i = 0; uri[i] != 0; i++) {
-		if (!allow_unicode && uri[i] < 33) {
-			/* control characters and spaces are invalid */
-			return 0;
-		}
-		if (!allow_unicode && uri[i] > 126) {
-			/* non-ascii characters must be % encoded */
-			return 0;
-		} else {
-			switch (uri[i]) {
-			case '"':  /* 34 */
-			case '<':  /* 60 */
-			case '>':  /* 62 */
-			case '\\': /* 92 */
-			case '^':  /* 94 */
-			case '`':  /* 96 */
-			case '{':  /* 123 */
-			case '|':  /* 124 */
-			case '}':  /* 125 */
-				return 0;
-			default:
-				/* character is ok */
-				break;
-			}
-		}
-	}
+  /* (downstream): don't validate urls at all, RGW parses them and can return
+   *the relevant error codes if invalid
+   */
+  if (!allow_unicode) {
+    for (i = 0; uri[i] != 0; i++) {
+      if (uri[i] < 33) {
+        /* control characters and spaces are invalid */
+        return 0;
+      }
+      if (uri[i] > 126) {
+        /* non-ascii characters must be % encoded */
+        return 0;
+      } else {
+        switch (uri[i]) {
+        case '"':  /* 34 */
+        case '<':  /* 60 */
+        case '>':  /* 62 */
+        case '\\': /* 92 */
+        case '^':  /* 94 */
+        case '`':  /* 96 */
+        case '{':  /* 123 */
+        case '|':  /* 124 */
+        case '}':  /* 125 */
+          return 0;
+        default:
+          /* character is ok */
+          break;
+        }
+      }
+    }
+  }
 
 	/* A relative uri starts with a / character */
 	if (uri[0] == '/') {
